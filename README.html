@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Guía y especificación técnica del visualizador y sistema de control para Universal Robots UR3e mediante TCP/IP.">
+    <title>UR3e Digital Twin | Industrial Communications</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b0f19;
+            --bg-surface: #111827;
+            --bg-card: #1f2937;
+            --border-color: #374151;
+            --border-focus: #4b5563;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.25);
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 60px;
+        }
+
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* HEADER & HERO */
+        header {
+            padding: 48px 0 32px;
+            border-bottom: 1px solid var(--border-color);
+            background: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 60%);
+        }
+
+        .badge-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+        }
+
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .badge-blue { color: #93c5fd; border-color: rgba(59, 130, 246, 0.4); }
+        .badge-blue .badge-dot { background-color: var(--primary); }
+        .badge-green { color: #6ee7b7; border-color: rgba(16, 185, 129, 0.4); }
+        .badge-green .badge-dot { background-color: var(--accent-green); }
+
+        h1 {
+            font-size: clamp(2rem, 4vw, 2.75rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #ffffff 30%, #9ca3af 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 800px;
+        }
+
+        /* GRID SYSTEM */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 24px;
+        }
+
+        /* CARD STYLES */
+        .card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--border-focus);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2::before {
+            content: "";
+            width: 4px;
+            height: 18px;
+            background: var(--primary);
+            border-radius: 2px;
+            display: inline-block;
+        }
+
+        /* CODE BOXES */
+        pre, code {
+            font-family: var(--font-mono);
+        }
+
+        .code-block {
+            background-color: #0d1117;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin: 12px 0;
+            overflow-x: auto;
+            color: #e6edf3;
+            font-size: 0.88rem;
+        }
+
+        code.inline {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: #93c5fd;
+        }
+
+        /* TABLES */
+        .table-wrap {
+            overflow-x: auto;
+            margin-top: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            font-weight: 600;
+        }
+
+        td {
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(31, 41, 55, 0.3);
+        }
+
+        /* ACCORDIONS / LISTS */
+        ol, ul {
+            padding-left: 20px;
+            color: var(--text-muted);
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        li strong {
+            color: var(--text-main);
+        }
+
+        .callout {
+            border-left: 4px solid var(--accent-amber);
+            background: rgba(245, 158, 11, 0.08);
+            padding: 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 16px 0;
+            font-size: 0.92rem;
+            color: #fde68a;
+        }
+
+        .callout-title {
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        footer {
+            margin-top: 60px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            padding-top: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <div class="badge-bar">
+                <span class="badge badge-blue"><span class="badge-dot"></span>TCP/IP Industrial</span>
+                <span class="badge badge-green"><span class="badge-dot"></span>UR3e e-Series PolyScope 5</span>
+                <span class="badge badge-blue"><span class="badge-dot"></span>PyBullet Digital Twin</span>
+            </div>
+            <h1>Visualizador y Control Remoto UR3e</h1>
+            <p class="subtitle">
+                Sistema modular multihilo para adquisición de telemetría cinemática (10 Hz / 500 Hz),
+                sincronización con gemelo digital 3D y control supervisor en lazo cerrado con URScript.
+            </p>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- CONFIGURACIÓN RÁPIDA -->
+        <div class="grid-2">
+            <div class="card">
+                <h2>1. Preparación del Entorno</h2>
+                <p style="color: var(--text-muted); margin-bottom: 12px;">Se requiere Python 3.9 o superior y el gestor de paquetes pip:</p>
+                <ol>
+                    <li>Crear y activar el entorno virtual aislado:
+                        <div class="code-block">
+# En Windows:
+python -m venv venv
+venv\Scripts\activate
+
+# En Linux / macOS:
+python3 -m venv venv
+source venv/bin/activate</div>
+                    </li>
+                    <li>Instalar la rueda oficial del simulador:
+                        <div class="code-block">pip install ur3e_rg2-0.1.0-py3-none-any.whl</div>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="card">
+                <h2>2. Configuración Centralizada (robots.json)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 12px;">
+                    Todos los scripts leen dinámicamente este fichero como <strong>única fuente de verdad</strong>, evitando modificar el código fuente entre el aula y el laboratorio:
+                </p>
+                <div class="code-block">[
+  {
+    "id": 0,
+    "ip": "10.172.21.203",
+    "puerto": 30001,
+    "tipo": "primaria",
+    "base_pos": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  },
+  {
+    "id": 1,
+    "ip": "10.172.21.204",
+    "puerto": 30003,
+    "tipo": "realtime",
+    "base_pos": [0.8, 0.0, 0.0, 0.0, 0.0, 0.0]
+  }
+]</div>
+            </div>
+        </div>
+
+        <!-- SCRIPTS DEL PROYECTO -->
+        <h2 style="margin-top: 40px; margin-bottom: 10px;">Módulos del Sistema por Niveles</h2>
+        <div class="grid-3">
+
+            <!-- NIVEL APROBADO: PRIMARIA -->
+            <div class="card">
+                <h2>primaria.py</h2>
+                <span class="badge badge-blue">Puerto 30001 · 10 Hz</span>
+                <p style="margin-top: 10px; font-size: 0.9rem; color: var(--text-muted);">
+                    Cliente multihilo para la <strong>Interfaz Primaria</strong>. Decodifica el mensaje general de estado (Tipo 16) navegando por subpaquetes jerárquicos (TLV).
+                </p>
+                <ul style="margin-top: 10px; font-size: 0.88rem;">
+                    <li><strong>Subpaquete 0:</strong> Extrae parada de seguridad y estado de emergencia.</li>
+                    <li><strong>Subpaquete 1:</strong> Desempaqueta los 6 ángulos reales <code>q_actual</code>.</li>
+                    <li><strong>Gráficos:</strong> Bucle desacoplado a 60 FPS con <code>threading.Lock</code>.</li>
+                </ul>
+                <div class="code-block">python primaria.py</div>
+            </div>
+
+            <!-- NIVEL APROBADO: TIEMPO REAL -->
+            <div class="card">
+                <h2>tiempo_real.py</h2>
+                <span class="badge badge-green">Puerto 30003 · 500 Hz</span>
+                <p style="margin-top: 10px; font-size: 0.9rem; color: var(--text-muted);">
+                    Cliente de alta frecuencia para la <strong>Interfaz de Tiempo Real</strong>. Lee paquetes de estructura estática y posiciones fijas en bytes.
+                </p>
+                <ul style="margin-top: 10px; font-size: 0.88rem;">
+                    <li><strong>Offset 252:</strong> <code>>6d</code> (48 bytes con los ángulos articulares).</li>
+                    <li><strong>Offset 756 / 764:</strong> Modos de operación y seguridad.</li>
+                    <li><strong>Rate-Limiter:</strong> Absorbe a 500 Hz y refresca la UI a 60 Hz.</li>
+                </ul>
+                <div class="code-block">python tiempo_real.py</div>
+            </div>
+
+            <!-- NIVEL NOTABLE: MULTIROBOT -->
+            <div class="card">
+                <h2>multirobot.py</h2>
+                <span class="badge badge-blue">Notable · Multi-Conexión</span>
+                <p style="margin-top: 10px; font-size: 0.9rem; color: var(--text-muted);">
+                    Visualizador concurrente capaz de representar múltiples brazos en la misma escena de PyBullet sin bloqueos mutuos.
+                </p>
+                <ul style="margin-top: 10px; font-size: 0.88rem;">
+                    <li><strong>Hilo trabajador por robot:</strong> Máquina de estados independiente.</li>
+                    <li><strong>Tolerancia a caídas:</strong> Si un robot cae, el resto sigue operando.</li>
+                    <li><strong>Polimorfismo:</strong> Soporta interfaces 30001 y 30003 simultáneamente.</li>
+                </ul>
+                <div class="code-block">python multirobot.py</div>
+            </div>
+
+        </div>
+
+        <!-- SOBRESALIENTE: ENVIAR ÓRDENES -->
+        <div class="card" style="margin-top: 24px;">
+            <h2>enviar_ordenes.py (Nivel Sobresaliente: Teach &amp; Playback)</h2>
+            <p style="color: var(--text-muted); margin-bottom: 14px;">
+                Aplicación de control industrial en lazo cerrado que interactúa bidireccionalmente con el controlador UR3e:
+            </p>
+            <div class="grid-2" style="margin-top: 0;">
+                <div>
+                    <h3 style="font-size: 1rem; margin-bottom: 8px; color: var(--text-main);">Características de Seguridad</h3>
+                    <ul style="font-size: 0.9rem;">
+                        <li><strong>Arquitectura One-Shot:</strong> Conexión efímera dedicada para comandos URScript, reseteando la sesión del compilador y eliminando la excepción de subtipo 6.</li>
+                        <li><strong>Límite angular defensivo:</strong> Comprueba que ningún valor exceda $|2\pi|\text{ rad}$ para impedir giros accidentales por confusión con grados.</li>
+                        <li><strong>Monitoreo de emergencia:</strong> Parada inmediata ante <code>isProtectiveStopped</code>, seta física pulsada o errores de runtime de tipo 20.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 style="font-size: 1rem; margin-bottom: 8px; color: var(--text-main);">Lazo Cerrado de Control</h3>
+                    <ul style="font-size: 0.9rem;">
+                        <li><strong>Confirmación de inicio:</strong> Supervisa la transición a <code>isProgramRunning == True</code> tras el envío del script.</li>
+                        <li><strong>Criterio de parada:</strong> Espera al retorno a <code>False</code> y evalúa que el error final sea $\max |q_{\text{act}} - q_{\text{obj}}| < 0.01\text{ rad}$.</li>
+                        <li><strong>Modo Freedrive:</strong> Permite enseñar posturas moviendo el robot físico manualmente (Modo Backdrive / 6).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="code-block">python enviar_ordenes.py</div>
+        </div>
+
+        <!-- MAPEO DE RED DEL LABORATORIO -->
+        <div class="card" style="margin-top: 24px;">
+            <h2>Distribución de Red en el Laboratorio de Robótica</h2>
+            <div class="callout">
+                <div class="callout-title">⚠️ Aviso de Seguridad en Planta Real</div>
+                El robot físico solo puede recibir órdenes con la autorización del profesor, en presencia de este y con la seta de parada de emergencia al alcance de la mano.
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Identificador</th>
+                            <th>Ubicación Física</th>
+                            <th>Dirección IP Fija</th>
+                            <th>Subred</th>
+                            <th>Máscara</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>UR3e - Puesto 1</strong></td>
+                            <td>Columna Izquierda (Inferior)</td>
+                            <td><code>10.172.21.203</code></td>
+                            <td>10.172.21.0</td>
+                            <td>255.255.255.0 (/24)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>UR3e - Puesto 2</strong></td>
+                            <td>Columna Izquierda (Superior)</td>
+                            <td><code>10.172.21.204</code></td>
+                            <td>10.172.21.0</td>
+                            <td>255.255.255.0 (/24)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>UR3e - Puesto 3</strong></td>
+                            <td>Columna Derecha (Inferior)</td>
+                            <td><code>10.172.21.205</code></td>
+                            <td>10.172.21.0</td>
+                            <td>255.255.255.0 (/24)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>UR3e - Puesto 4</strong></td>
+                            <td>Columna Derecha (Superior)</td>
+                            <td><code>10.172.21.206</code></td>
+                            <td>10.172.21.0</td>
+                            <td>255.255.255.0 (/24)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>URSim Virtual</strong></td>
+                            <td>Máquina Virtual (Modo Puente)</td>
+                            <td><code>10.172.18.x</code></td>
+                            <td>10.172.18.0</td>
+                            <td>255.255.255.0 (/24)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Máster en Automatización y Redes de Comunicación Industriales · Curso 2026–2027</p>
+        </div>
+    </footer>
+
+</body>
+</html>
